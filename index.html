@@ -8,13 +8,10 @@
 <meta name="referrer" content="no-referrer">
 <title>복약 알리미</title>
 <style>
-  :root { --bg:#f6f6f6; --fg:#191919; --dim:#6b6b6b; --brand:#FEE500; --brand-ink:#191919; --card:#fff; --line:#e3e3e3; --soft:#fff8c4; --ink:#3c1e1e; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#121212; --fg:#ececec; --dim:#a3a3a3; --card:#1e1e1e; --line:#333; --soft:#2e2a10; --ink:#f3e9a0; } }
+  :root { --bg:#f5f8f6; --fg:#14201a; --dim:#5f6d66; --brand:#0CAB60; --brand-ink:#fff; --card:#fff; --line:#dde5e0; --soft:#e7f6ee; --kakao:#FEE500; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f1512; --fg:#e7eee9; --dim:#9aa9a1; --card:#18211c; --line:#2a3630; --soft:#16301f; } }
   * { box-sizing: border-box; }
-  header { background:var(--brand); color:var(--brand-ink); }
-  header div { max-width:460px; margin:0 auto; padding:22px 16px 18px; }
-  header h1 { color:#191919; }
-  header .sub { color:#3c3c3c; margin:4px 0 0; }
+  .kicker { color:var(--brand); font-weight:800; font-size:13.5px; letter-spacing:.02em; margin:0 0 2px; }
   body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.5 -apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif; }
   main { max-width:460px; margin:0 auto; padding:22px 16px 36px; }
   h1 { font-size:22px; margin:0 0 2px; }
@@ -25,13 +22,13 @@
   .chip { appearance:none; font:inherit; font-weight:700; font-size:16px; padding:12px 4px; border-radius:12px; cursor:pointer;
           background:var(--card); color:var(--fg); border:1.5px solid var(--line); -webkit-tap-highlight-color:transparent; }
   .chip.on { background:var(--brand); color:var(--brand-ink); border-color:var(--brand); }
-  #kakao { background:var(--brand); color:#191919; }
+  /* 카카오 로그인으로 이어지는 버튼만 카카오 디자인 가이드(노란 바탕·검은 글씨) — 나머지는 약국 초록 */
+  #kakao { background:var(--kakao); color:#191919; }
   /* 휴대폰 캘린더: [아이폰 캘린더] [구글 캘린더] 나란히 */
   .cal { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:16px; align-items:start; }
   .cal a.btn { margin:0; font-size:15.5px; padding:13px 4px; white-space:nowrap; }
   #gbtns { display:grid; gap:8px; }
-  a.btn.sec { background:transparent; color:var(--fg); border:2px solid var(--fg); font-size:17px; padding:14px; margin-top:4px; }
-  #kakao.done { background:var(--card); color:var(--fg); border:2px solid var(--brand); }
+  a.btn.sec { background:var(--card); color:var(--brand); border:2px solid var(--brand); font-size:17px; padding:14px; margin-top:4px; }
   .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:6px 14px; }
   .trow { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0; border-bottom:1px solid var(--line); }
   .trow:last-child { border-bottom:0; }
@@ -49,10 +46,10 @@
   .intro .ex { display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 10px; }
   .intro .ex a { padding:8px 12px; border:1.5px solid var(--line); border-radius:999px; color:var(--fg); text-decoration:none; font-size:14.5px; background:var(--bg); }
   .sum { background:var(--soft); border-radius:12px; padding:12px 14px; margin-top:16px; font-weight:700; }
-  a.btn { display:block; text-align:center; background:var(--ink); color:var(--card); text-decoration:none; font-weight:800;
+  a.btn { display:block; text-align:center; background:var(--brand); color:#fff; text-decoration:none; font-weight:800;
           font-size:18px; padding:16px; border-radius:14px; margin:14px 0 8px; }
   a.btn.off { opacity:.35; pointer-events:none; }
-  a.btn.done { background:var(--card); color:var(--fg); border:2px solid var(--ink); }
+  a.btn.done { background:var(--card); color:var(--brand); border:2px solid var(--brand); }
   /* 예비 버튼: 갈색 테두리 상자 (크기는 기본 버튼보다 약간 작게) */
   :root { --alt:#6b4a2b; }
   @media (prefers-color-scheme: dark) { :root { --alt:#d9b98c; } }
@@ -60,19 +57,18 @@
           text-decoration:none; font-weight:800; font-size:16px; padding:13px; border-radius:14px; margin:0 0 8px; }
   .help { color:var(--dim); font-size:14px; margin:6px 0 0; }
   .took { display:flex; gap:10px; align-items:flex-start; margin-top:14px; cursor:pointer; }
-  .took input { width:22px; height:22px; margin:2px 0 0; accent-color:#191919; flex:none; }
+  .took input { width:22px; height:22px; margin:2px 0 0; accent-color:var(--brand); flex:none; }
   .took b { font-size:16px; }
   .took small { display:block; color:var(--dim); font-size:13.5px; margin-top:2px; }
   footer { color:var(--dim); font-size:12.5px; margin-top:28px; border-top:1px solid var(--line); padding-top:12px; line-height:1.6; }
 </style>
 </head>
 <body>
-<header><div>
+<main>
+  <p class="kicker">약국 복약 안내 서비스</p>
   <h1>복약 알리미</h1>
   <p class="sub"> <b>알림 시각을</b> 생활에 맞게 바꾼 뒤 버튼을 누르시면
     알림이 카카오톡으로 전달됩니다.</p>
-</div></header>
-<main>
 
   <h2 id="times-h">알림 시각</h2>
   <div class="card" id="times"></div>
@@ -286,7 +282,7 @@
     if (!q.get('p')) {        // QR 없이 들어온 경우: 서비스 소개 + 예시
       $('times-h').textContent = '이용 방법';
       $('times').innerHTML = `<div class="intro">
-        <p>약국에서 받은 약 봉투의 <b>QR을 휴대폰 카메라로 찍으면</b> 약사가 정해 준 복용 시간이 이 화면에 표시됩니다.</p>
+        <p>약국에서 조제한 약의 복용 시간을 알려 드리는 서비스입니다. 약 봉투의 <b>QR을 휴대폰 카메라로 찍으면</b> 약사가 정해 준 복용 시간이 이 화면에 표시됩니다.</p>
         <ol><li>알림 시각을 생활에 맞게 바꿉니다.</li>
             <li><b>카카오톡으로 알림 받기</b>를 누르면 카카오톡 캘린더에 복약 '할 일'이 반복 등록됩니다.</li>
             <li>복용 시각마다 카카오톡으로 알림이 오고, <b>완료하기</b>로 복용을 체크할 수 있습니다.</li></ol>
