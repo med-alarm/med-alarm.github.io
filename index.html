@@ -24,8 +24,15 @@
   .chip.on { background:var(--brand); color:var(--brand-ink); border-color:var(--brand); }
   /* 카카오 로그인으로 이어지는 버튼만 카카오 디자인 가이드(노란 바탕·검은 글씨) — 나머지는 약국 초록 */
   #kakao { background:var(--kakao); color:#191919; }
-  /* 화면이 짧아도 등록 버튼이 항상 보이도록: 제자리에 오기 전까지 화면 아래에 붙어 있음 */
-  #kakao { position:sticky; bottom:12px; z-index:5; box-shadow:0 6px 18px rgba(0,0,0,.16); }
+  /* 화면이 짧아 등록 버튼이 안 보일 때만 하단 막대: [카카오톡] [휴대폰 캘린더 ↓] */
+  #dock { position:fixed; left:0; right:0; bottom:0; z-index:10; padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+          background:color-mix(in srgb, var(--bg) 92%, transparent); border-top:1px solid var(--line);
+          -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); display:none; }
+  #dock.show { display:block; }
+  #dock div { max-width:428px; margin:0 auto; display:grid; grid-template-columns:1.7fr 1fr; gap:8px; }
+  #dock a { display:block; text-align:center; text-decoration:none; font-weight:800; border-radius:12px; padding:13px 6px; font-size:15.5px; white-space:nowrap; }
+  #dock .k { background:var(--kakao); color:#191919; }
+  #dock .c { background:var(--card); color:var(--brand); border:2px solid var(--brand); padding:11px 6px; }
   /* 휴대폰 캘린더: [아이폰 캘린더] [구글 캘린더] 나란히 */
   .cal { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:16px; align-items:start; }
   .cal a.btn { margin:0; font-size:15.5px; padding:13px 4px; white-space:nowrap; }
@@ -88,6 +95,7 @@
   <div class="sum" id="sum"></div>
   <a class="btn off" id="kakao" href="#">카카오톡으로 알림 받기</a>
   <p class="help" id="khelp">처음 한 번은 카카오 동의 화면이 나와요. <b>동의하고 계속하기</b>를 누르면 등록됩니다.</p>
+  <div id="dock"><div><a class="k" id="dock-k" href="#">카카오톡으로 알림 받기</a><a class="c" id="dock-c" href="#cal">휴대폰 캘린더 ↓</a></div></div>
   <div class="cal" id="cal">
     <a class="btn sec off" id="add" href="#">아이폰 캘린더</a>
     <div id="gbtns"></div>
@@ -289,7 +297,8 @@
     if (it.code === 'np' || it.code === 'z') return n ? `${n} · ${it.name}` : it.name;
     return n ? `${n} · ${it.name}` : `약 복용 (${it.name})`; };
 
-  function build() {
+  function build() { buildCore(); dockSync(); }   // 화면을 다시 그린 뒤 하단 막대도 맞춤
+  function buildCore() {
     const a1 = $('add'), ak = $('kakao');
     const hide = msg => {
       $('sum').style.display = msg ? '' : 'none'; $('sum').textContent = msg || '';
@@ -368,6 +377,18 @@
   window.addEventListener('hashchange', () => location.reload());   // 예시 링크 등 주소 값이 바뀌면 다시 읽기
   $('took').onchange = build;
   $('aname').oninput = build;
+  // 하단 막대: 진짜 버튼(#kakao)이 화면에 안 보이고, 등록할 수 있는 상태일 때만 표시
+  var kakaoSeen = false;
+  function dockSync() {
+    const ready = !$('kakao').classList.contains('off') && $('kakao').style.display !== 'none';
+    $('dock-k').href = $('kakao').href;
+    $('dock').classList.toggle('show', ready && !kakaoSeen);
+  }
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(es => { kakaoSeen = es[0].isIntersecting || es[0].boundingClientRect.top < 0; dockSync(); }).observe($('kakao'));
+  }
+  $('dock-c').onclick = e => { e.preventDefault(); $('cal').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+
   $('zchk').onchange = build;
   if (ok) rows();
   build();
