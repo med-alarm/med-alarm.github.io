@@ -24,6 +24,8 @@
   .chip.on { background:var(--brand); color:var(--brand-ink); border-color:var(--brand); }
   /* 카카오 로그인으로 이어지는 버튼만 카카오 디자인 가이드(노란 바탕·검은 글씨) — 나머지는 약국 초록 */
   #kakao { background:var(--kakao); color:#191919; }
+  /* 화면이 짧아도 등록 버튼이 항상 보이도록: 제자리에 오기 전까지 화면 아래에 붙어 있음 */
+  #kakao { position:sticky; bottom:12px; z-index:5; box-shadow:0 6px 18px rgba(0,0,0,.16); }
   /* 휴대폰 캘린더: [아이폰 캘린더] [구글 캘린더] 나란히 */
   .cal { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:16px; align-items:start; }
   .cal a.btn { margin:0; font-size:15.5px; padding:13px 4px; white-space:nowrap; }
@@ -68,15 +70,13 @@
 </head>
 <body>
 <main>
-  <p class="kicker">약국 복약 안내 서비스</p>
+  <p class="kicker" id="kicker">약국 복약 안내 서비스</p>
   <h1>복약 알리미</h1>
-  <p class="sub"> <b>알림 시각을</b> 생활에 맞게 바꾼 뒤 버튼을 누르시면
-    알림이 카카오톡으로 전달됩니다.</p>
 
   <div id="namebox">
     <h2>알림 이름 <span style="font-weight:400;color:var(--dim)">(선택)</span></h2>
     <input type="text" id="aname" maxlength="10" placeholder="예) 감기약, 피부과약" autocomplete="off">
-    <p class="help" style="margin:6px 0 0">비워 두면 '약 복용'으로 등록돼요. 입력한 이름은 잠금화면 알림에도 그대로 보여요.</p>
+    <p class="help" style="margin:6px 0 0">비워 두면 '약 복용'으로 등록 · 잠금화면 알림에 보여요</p>
   </div>
 
   <h2 id="times-h">알림 시각</h2>
@@ -309,6 +309,7 @@
       ak.style.display = 'none';
       return hide('');
     }
+    $('kicker').style.display = 'none';      // QR로 들어온 화면은 제목만 (등록 버튼이 첫 화면에 보이도록)
     if (!ok) {
       $('namebox').style.display = 'none';
       $('times').innerHTML = '<div class="empty">QR 정보가 올바르지 않습니다. 약국에 문의해 주세요.</div>';
