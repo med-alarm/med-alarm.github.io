@@ -86,6 +86,9 @@
   <p class="help" id="help">휴대폰 캘린더에 직접 넣으려면 기종에 맞는 버튼을 누르세요.</p>
 
   <footer>
+    <!-- 사업자 정보 (카카오 비즈니스 정보와 같은 값): 아래 줄의 주석 표시를 지우고 값을 넣으세요
+    <p style="margin:0 0 8px">운영: [상호] · 대표 [대표자] · 사업자등록번호 [000-00-00000]<br>[사업장 주소] · 문의 ahyeonolive@naver.com</p>
+    -->
     이 페이지는 이름·연락처 등 개인정보를 수집하거나 저장하지 않습니다.
     알림은 카카오 로그인 동의를 거쳐 내 카카오톡 캘린더에 만들어지며,
     로그인 정보는 등록 직후 폐기하고 보관하지 않습니다.
@@ -270,7 +273,7 @@
     if (it.rule === 'M1') return `FREQ=MONTHLY;COUNT=${it.n}`;
     return `FREQ=WEEKLY;BYDAY=${['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'].filter((_, i) => it.rule[1 + i] === '1').join(',')};COUNT=${it.n}`;
   }
-  const ruleText = it => it.rule === 'X' ? '' : it.rule === 'M1' ? '매월 ' : it.rule[0] === 'W' ? '' : it.rule === 'D1' ? '' : it.rule === 'D7' ? '매주 ' : `${it.rule[1]}일마다 `;
+  const ruleText = it => it.rule === 'X' || IV[it.code] ? '' : it.rule === 'M1' ? '매월 ' : it.rule[0] === 'W' ? '' : it.rule === 'D1' ? '' : it.rule === 'D7' ? '매주 ' : `${it.rule[1]}일마다 `;
   const titleOf = it => it.code === 'np' || it.code === 'z' ? it.name : `약 복용 (${it.name})`;
 
   function build() {
