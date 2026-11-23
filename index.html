@@ -37,6 +37,8 @@
   input[type=time], input[type=date], input[type=number] { font:inherit; font-size:17px; font-weight:700; padding:8px 10px; border-radius:10px;
           border:1.5px solid var(--line); background:var(--bg); color:var(--fg); }
   input[type=number] { width:84px; text-align:right; }
+  #aname { width:100%; font-size:16.5px; padding:12px 14px; border-radius:12px; border:1.5px solid var(--line); background:var(--card); color:var(--fg); }
+  #aname:focus { outline:none; border-color:var(--brand); }
   input[type=date] { font-size:15px; padding:8px 6px; }
   .dt { display:flex; flex-direction:column; gap:6px; align-items:stretch; }
   .trow input[type=time], .trow input[type=date] { max-width:170px; }
@@ -70,6 +72,12 @@
   <h1>복약 알리미</h1>
   <p class="sub"> <b>알림 시각을</b> 생활에 맞게 바꾼 뒤 버튼을 누르시면
     알림이 카카오톡으로 전달됩니다.</p>
+
+  <div id="namebox">
+    <h2>알림 이름 <span style="font-weight:400;color:var(--dim)">(선택)</span></h2>
+    <input type="text" id="aname" maxlength="10" placeholder="예) 감기약, 피부과약" autocomplete="off">
+    <p class="help" style="margin:6px 0 0">비워 두면 '약 복용'으로 등록돼요. 입력한 이름은 잠금화면 알림에도 그대로 보여요.</p>
+  </div>
 
   <h2 id="times-h">알림 시각</h2>
   <div class="card" id="times"></div>
@@ -275,7 +283,11 @@
     return `FREQ=WEEKLY;BYDAY=${['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'].filter((_, i) => it.rule[1 + i] === '1').join(',')};COUNT=${it.n}`;
   }
   const ruleText = it => it.rule === 'X' || IV[it.code] ? '' : it.rule === 'M1' ? '매월 ' : it.rule[0] === 'W' ? '' : it.rule === 'D1' ? '' : it.rule === 'D7' ? '매주 ' : `${it.rule[1]}일마다 `;
-  const titleOf = it => it.code === 'np' || it.code === 'z' ? it.name : `약 복용 (${it.name})`;
+  // 알림 이름(선택): 한글·영문·숫자·공백·( ) - · 만, 10자 이내 (Worker도 같은 규칙으로 검사)
+  const aname = () => ($('aname').value || '').normalize('NFC').replace(/[^가-힣ㄱ-ㅎㅏ-ㅣA-Za-z0-9 ()·\-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 10);
+  const titleOf = it => { const n = aname();
+    if (it.code === 'np' || it.code === 'z') return n ? `${n} · ${it.name}` : it.name;
+    return n ? `${n} · ${it.name}` : `약 복용 (${it.name})`; };
 
   function build() {
     const a1 = $('add'), ak = $('kakao');
@@ -284,6 +296,7 @@
       ak.classList.add('off'); $('cal').style.display = 'none'; $('help').style.display = 'none';
     };
     if (!q.get('p')) {        // QR 없이 들어온 경우: 서비스 소개 + 예시
+      $('namebox').style.display = 'none';
       $('times-h').textContent = '이용 방법';
       $('times').innerHTML = `<div class="intro">
         <p>약국에서 조제한 약의 복용 알림 등록 서비스입니다.<br>부착된 <b>QR을 휴대폰 카메라로 찍으면</b> 기본 복용 시간이 화면에 표시됩니다.</p>
@@ -297,6 +310,7 @@
       return hide('');
     }
     if (!ok) {
+      $('namebox').style.display = 'none';
       $('times').innerHTML = '<div class="empty">QR 정보가 올바르지 않습니다. 약국에 문의해 주세요.</div>';
       document.querySelector('.took').style.display = 'none'; $('khelp').style.display = 'none';
       return hide('');
@@ -318,7 +332,8 @@
 
     // 카카오톡: 항목마다 코드.첫알림(YYYYMMDDHHmm).규칙.횟수 → Worker가 카카오 동의 후 등록
     const kp = R.items.map(it => `${it.code}.${ymd(it.first)}${pad(it.first.getHours())}${pad(it.first.getMinutes())}.${it.rule}.${it.n}`).join('~');
-    ak.href = KAKAO_WORKER + '?' + new URLSearchParams({ p: kp, m: KAKAO_MODE }).toString();
+    const kq = { p: kp, m: KAKAO_MODE }; if (aname()) kq.n = aname();
+    ak.href = KAKAO_WORKER + '?' + new URLSearchParams(kq).toString();
     ak.classList.remove('off');
 
     // 아이폰: ics 데이터 주소 → '캘린더에 추가' 화면에서 반복 포함 바로 등록 (다운로드 없음)
@@ -351,6 +366,7 @@
   }
   window.addEventListener('hashchange', () => location.reload());   // 예시 링크 등 주소 값이 바뀌면 다시 읽기
   $('took').onchange = build;
+  $('aname').oninput = build;
   $('zchk').onchange = build;
   if (ok) rows();
   build();
